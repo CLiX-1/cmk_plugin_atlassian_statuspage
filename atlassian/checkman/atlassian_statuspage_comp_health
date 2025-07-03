@@ -1,0 +1,20 @@
+title: Atlassian Statuspage: Component Health
+agents: atlassian_statuspage
+catalog: cloud
+license: GPLv2
+distribution: Christopher Pommer
+description:
+ This check monitors the component health state from an Atlassian
+ Statuspage.
+
+ Depending on the configured check levels for the component health states,
+ the service state is {OK}, {WARN} or {CRIT}.
+ If the health state is not defined, the service will be {UNKNOWN}.
+
+ You have to configure the special agent {Atlassian Statuspage}.
+
+item:
+ Atlassian statuspage component name.
+
+discovery:
+ One service is created for each Atlassian statuspage component.

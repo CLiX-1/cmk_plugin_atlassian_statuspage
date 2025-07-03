@@ -1,0 +1,149 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8; py-indent-offset: 4; max-line-length: 100 -*-
+
+# Copyright (C) 2025  Christopher Pommer <cp.software@outlook.de>
+
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+
+####################################################################################################
+# This Checkmk plugin (Special Agent) retrieves information from an Atlassian statuspage.
+
+
+import sys
+import argparse
+import json
+from typing import List, Optional, TypedDict
+from urllib.parse import urljoin
+
+import requests
+
+from cmk.utils.http_proxy_config import deserialize_http_proxy_config, HTTPProxyConfig
+
+
+def parse_arguments() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--url", required=True, help="The unique ID from the Microsoft Entra tenant."
+    )
+    parser.add_argument(
+        "--filter-exclude",
+        required=False,
+        help="Excluded component names.",
+    )
+    parser.add_argument(
+        "--filter-include",
+        required=False,
+        help="Included component names.",
+    )
+    parser.add_argument(
+        "--proxy",
+        required=False,
+        help=(
+            "The HTTP proxy that will be used for the connection. If not set, the "
+            "environment settings will be used."
+        ),
+    )
+    parser.add_argument(
+        "--timeout",
+        required=False,
+        type=float,
+        default=10.0,
+        help="Define a custom timeout in seconds for the connection. The default timeout is 10s.",
+    )
+
+    return parser.parse_args()
+
+
+def handle_error(err: Exception, context: str, exit_code: int = 1) -> None:
+    err_msg = f"{err}"
+    if hasattr(err, "response") and err.response:
+        err_msg += f" Response: {getattr(err.response, 'text', 'No response text')}"
+
+    sys.stderr.write(f"{err_msg}\n\n{context}\n")
+
+    sys.exit(exit_code)
+
+
+class ComponentStatus(TypedDict):
+    component_name: str
+    status: str
+    description: Optional[str]
+    url: str
+
+
+def get_statuspage(
+    url: str,
+    timeout: float,
+    proxy: HTTPProxyConfig,
+    filter_include: Optional[List[str]] = None,
+    filter_exclude: Optional[List[str]] = None,
+) -> List[ComponentStatus]:
+    statuspage_url = urljoin(url, "api/v2/summary.json")
+
+    try:
+        statuspage_response = requests.get(
+            statuspage_url, timeout=timeout, proxies=proxy.to_requests_proxies()
+        )
+        statuspage_response.raise_for_status()
+    except requests.exceptions.Timeout as err:
+        handle_error(
+            err,
+            "Timeout while getting statuspage.",
+            14,
+        )
+    except requests.exceptions.RequestException as err:
+        print(err)
+        error_message = "Failed to get statuspage."
+        handle_error(
+            err,
+            error_message,
+            4,
+        )
+
+    statuspage_json = statuspage_response.json()
+
+    statuspage_components: List[ComponentStatus] = [
+        {
+            "component_name": component["name"],
+            "status": component["status"],
+            "description": component.get("description"),
+            "url": url,
+        }
+        for component in statuspage_json.get("components", [])
+        if (filter_include is None or component["name"] in filter_include)
+        and (filter_exclude is None or component["name"] not in filter_exclude)
+    ]
+
+    return statuspage_components
+
+
+def main():
+    args = parse_arguments()
+    url = args.url
+    filter_include = args.filter_include.split(",") if args.filter_include else None
+    filter_exclude = args.filter_exclude.split(",") if args.filter_exclude else None
+    proxy = deserialize_http_proxy_config(args.proxy)
+    timeout = args.timeout
+
+    atlassian_statuspage_comp_health = get_statuspage(
+        url, timeout, proxy, filter_include, filter_exclude
+    )
+    print("<<<atlassian_statuspage_comp_health:sep(0)>>>")
+    print(json.dumps(atlassian_statuspage_comp_health))
+
+
+if __name__ == "__main__":
+    main()
