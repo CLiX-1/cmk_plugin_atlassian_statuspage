@@ -37,7 +37,7 @@
 import json
 from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any
 
 
 from cmk.agent_based.v2 import (
@@ -56,7 +56,7 @@ from cmk.agent_based.v2 import (
 class ComponentStatus:
     component_name: str
     status: str
-    description: Optional[str]
+    description: str | None
     url: str
 
 
