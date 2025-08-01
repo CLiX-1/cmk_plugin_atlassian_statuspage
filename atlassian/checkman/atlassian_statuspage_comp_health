@@ -1,20 +1,32 @@
 title: Atlassian Statuspage: Component Health
-agents: atlassian_statuspage
+agents: special
 catalog: cloud
 license: GPLv2
 distribution: Christopher Pommer
 description:
- This check monitors the component health state from an Atlassian
- Statuspage.
+ This check monitors the health status of individual components from an Atlassian
+ Statuspage. It processes data collected by the {Atlassian Statuspage} special agent.
 
- Depending on the configured check levels for the component health states,
- the service state is {OK}, {WARN} or {CRIT}.
- If the health state is not defined, the service will be {UNKNOWN}.
+ The check evaluates each component's status and maps it to monitoring states
+ based on configurable thresholds:
 
- You have to configure the special agent {Atlassian Statuspage}.
+ {operational}: Component is fully functional (default: {OK})
+
+ {degraded_performance}: Component has performance issues (default: {WARN})
+
+ {partial_outage}: Component is partially unavailable (default: {CRIT})
+
+ {major_outage}: Component is completely unavailable (default: {CRIT})
+
+ If a component reports an unknown or undefined status, the service state
+ will be {UNKNOWN}.
+
+ You must configure the {Atlassian Statuspage} special agent to collect
+ the component data from your statuspage.
 
 item:
- Atlassian statuspage component name.
+ The name of the Atlassian statuspage component as reported by the statuspage API.
 
 discovery:
- One service is created for each Atlassian statuspage component.
+ One service is created for each component found on the monitored Atlassian
+ statuspage. The service name follows the pattern "Health {component_name}".
