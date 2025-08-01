@@ -24,7 +24,7 @@
 
 
 from pydantic import BaseModel
-from typing import Iterator, List, Optional
+from typing import Iterator
 
 from cmk.server_side_calls.v1 import (
     EnvProxy,
@@ -40,15 +40,15 @@ from cmk.server_side_calls.v1 import (
 class Params(BaseModel):
     url: str
     filter: tuple[str, list[str]] = ("", [])
-    proxy: Optional[URLProxy | NoProxy | EnvProxy] = None
-    timeout: Optional[float] = 10.0
+    proxy: URLProxy | NoProxy | EnvProxy | None = None
+    timeout: float = 10.0
 
 
 def generate_special_agent_commands(
     params: Params,
     _host_config: HostConfig,
 ) -> Iterator[SpecialAgentCommand]:
-    args: List[str | Secret] = [
+    args: list[str | Secret] = [
         "--url",
         params.url,
         "--timeout",
