@@ -30,7 +30,6 @@ from cmk.rulesets.v1.form_specs import (
     DictElement,
     Dictionary,
     FieldSize,
-    InputHint,
     List,
     Proxy,
     String,
@@ -53,7 +52,12 @@ def _parameter_form_special_agent_atlassian_statuspage() -> Dictionary:
             "url": DictElement(
                 parameter_form=String(
                     title=Title("Statuspage URL"),
-                    help_text=Help("The URL of the Atlassian statuspage."),
+                    help_text=Help(
+                        "The base URL of the Atlassian statuspage you want to monitor.<br>"
+                        "Examples:<br><ul>"
+                        "<li><tt>https://confluence.status.atlassian.com</tt></li>"
+                        "<li><tt>https://metastatuspage.com</tt></li></ul>"
+                    ),
                     field_size=FieldSize.LARGE,
                     custom_validate=[
                         Url(
@@ -64,6 +68,7 @@ def _parameter_form_special_agent_atlassian_statuspage() -> Dictionary:
                         ),
                         LengthInRange(
                             min_value=1,
+                            error_msg=Message("Statuspage URL cannot be empty."),
                         ),
                     ],
                 ),
@@ -73,21 +78,56 @@ def _parameter_form_special_agent_atlassian_statuspage() -> Dictionary:
                 parameter_form=CascadingSingleChoice(
                     title=Title("Filter Components"),
                     help_text=Help(
-                        "Set a filter to either include or exclude specific components."
+                        "Filter which components to monitor by name. You can either:<br><br><ul>"
+                        "<li><b>Include</b>: Only monitor the specified components<br></li>"
+                        "<li><b>Exclude</b>: Monitor all components except the specified ones"
+                        "</li></ul>Use the exact names of the components. For example, use the "
+                        "name from the services that have already been added.<br>If no filter "
+                        "is set, all components will be monitored."
                     ),
                     elements=[
                         CascadingSingleChoiceElement(
                             name="filter_include",
                             title=Title("Include"),
                             parameter_form=List[str](
-                                element_template=String(),
+                                element_template=String(
+                                    custom_validate=[
+                                        LengthInRange(
+                                            min_value=1,
+                                            error_msg=Message("Component name cannot be empty."),
+                                        ),
+                                    ],
+                                ),
+                                custom_validate=[
+                                    LengthInRange(
+                                        min_value=1,
+                                        error_msg=Message(
+                                            "At least one component name must be specified."
+                                        ),
+                                    ),
+                                ],
                             ),
                         ),
                         CascadingSingleChoiceElement(
                             name="filter_exclude",
                             title=Title("Exclude"),
                             parameter_form=List[str](
-                                element_template=String(),
+                                element_template=String(
+                                    custom_validate=[
+                                        LengthInRange(
+                                            min_value=1,
+                                            error_msg=Message("Component name cannot be empty."),
+                                        ),
+                                    ],
+                                ),
+                                custom_validate=[
+                                    LengthInRange(
+                                        min_value=1,
+                                        error_msg=Message(
+                                            "At least one component name must be specified."
+                                        ),
+                                    ),
+                                ],
                             ),
                         ),
                     ],
@@ -98,8 +138,8 @@ def _parameter_form_special_agent_atlassian_statuspage() -> Dictionary:
                 parameter_form=Proxy(
                     title=Title("HTTP Proxy"),
                     help_text=Help(
-                        "The HTTP proxy that will be used for the connection. If not set, "
-                        "the environment settings will be used."
+                        "Configure HTTP proxy settings for the connection to the statuspage.<br>"
+                        "If not configured, the system environment proxy settings will be used."
                     ),
                 ),
             ),
@@ -107,8 +147,8 @@ def _parameter_form_special_agent_atlassian_statuspage() -> Dictionary:
                 parameter_form=TimeSpan(
                     title=Title("Connection Timeout"),
                     help_text=Help(
-                        "Define a custom timeout in seconds for the connection.<br>The default "
-                        "timeout is 10s."
+                        "Maximum time in seconds to wait for the statuspage to respond.<br>"
+                        "If you do not add a timeout, a default of 10 seconds will be used."
                     ),
                     displayed_magnitudes=[TimeMagnitude.SECOND],
                     custom_validate=[
@@ -118,7 +158,7 @@ def _parameter_form_special_agent_atlassian_statuspage() -> Dictionary:
                             error_msg=Message("The timeout must be between 3s and 600s."),
                         ),
                     ],
-                    prefill=InputHint(value=10.0),
+                    prefill=DefaultValue(value=10.0),
                 ),
             ),
         },
