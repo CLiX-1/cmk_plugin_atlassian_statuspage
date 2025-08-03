@@ -17,12 +17,14 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-
 ####################################################################################################
-# Checkmk check plugin for monitoring the components from an Atlassian statuspage.
-# The plugin works with data from the Atlassian Statuspage special agent (atlassian_statuspage).
+# CHECKMK CHECK PLUG-IN: Atlassian Statuspage Components Health
+#
+# This plug-in generates the Checkmk services and determines their status.
+# This file is part of the Atlassian Statuspage special agent (atlassian_statuspage).
+####################################################################################################
 
-# Example data from special agent:
+# Example data from special agent (formatted):
 # <<<atlassian_statuspage_comp_health:sep(0)>>>
 # [
 #     {

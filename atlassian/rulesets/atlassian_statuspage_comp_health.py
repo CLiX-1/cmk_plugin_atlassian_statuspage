@@ -17,10 +17,12 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-
 ####################################################################################################
-# Checkmk ruleset to set the severity levels for the Atlassian Statuspage components health.
-# This ruleset is part of the Atlassian Statuspage special agent (atlassian_statuspage).
+# CHECKMK RULESET: Atlassian Statuspage Components Health (check plug-in)
+#
+# This file defines the check plug-in parameters for the "Atlassian Statuspage Components Health"
+# check. The check is part of the Microsoft Entra special agent (atlassian_statuspage).
+####################################################################################################
 
 
 from cmk.rulesets.v1 import Help, Title
@@ -30,7 +32,7 @@ from cmk.rulesets.v1.rule_specs import CheckParameters, HostCondition, Topic
 
 def _parameter_form_atlassian_statuspage_comp_health() -> Dictionary:
     return Dictionary(
-        title=Title("Atlassian Statuspage Components Health States"),
+        title=Title("Check parameters"),
         help_text=Help(
             "Check parameters for the Atlassian Statuspage components health. "
             "To use this service, you need to set up the <b>Atlassian Statuspage</b> special "
@@ -41,7 +43,7 @@ def _parameter_form_atlassian_statuspage_comp_health() -> Dictionary:
                 parameter_form=ServiceState(
                     title=Title("Operational"),
                     help_text=Help(
-                        "Set the severity level of the state <i>Operational</i>. "
+                        "Set the severity level of the state <i>operational</i>. "
                         "The default severity level is ok."
                     ),
                     prefill=DefaultValue(0),
@@ -49,9 +51,9 @@ def _parameter_form_atlassian_statuspage_comp_health() -> Dictionary:
             ),
             "degraded_performance": DictElement(
                 parameter_form=ServiceState(
-                    title=Title("Degraded Performance"),
+                    title=Title("Degraded performance"),
                     help_text=Help(
-                        "Set the severity level of the state <i>Degraded Performance</i>. "
+                        "Set the severity level of the state <i>Degraded performance</i>. "
                         "The default severity level is warning."
                     ),
                     prefill=DefaultValue(1),
@@ -59,9 +61,9 @@ def _parameter_form_atlassian_statuspage_comp_health() -> Dictionary:
             ),
             "partial_outage": DictElement(
                 parameter_form=ServiceState(
-                    title=Title("Partial Outage"),
+                    title=Title("Partial outage"),
                     help_text=Help(
-                        "Set the severity level of the state <i>Partial Outage</i>. "
+                        "Set the severity level of the state <i>Partial outage</i>. "
                         "The default severity level is critical."
                     ),
                     prefill=DefaultValue(2),
@@ -69,9 +71,9 @@ def _parameter_form_atlassian_statuspage_comp_health() -> Dictionary:
             ),
             "major_outage": DictElement(
                 parameter_form=ServiceState(
-                    title=Title("Major Outage"),
+                    title=Title("Major outage"),
                     help_text=Help(
-                        "Set the severity level of the state <i>Major Outage</i>. "
+                        "Set the severity level of the state <i>Major outage</i>. "
                         "The default severity level is critical."
                     ),
                     prefill=DefaultValue(2),

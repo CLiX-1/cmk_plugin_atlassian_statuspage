@@ -17,11 +17,13 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-
 ####################################################################################################
-# This is part of the Checkmk special agent for monitoring Atlassian Statuspage.
-# It builds the configuration parameters for the special agent call.
-
+# CHECKMK SPECIAL AGENT CALL: Atlassian Statuspage
+#
+# This file builds the special agent command-line arguments (call parameter). These parameters are
+# configured in the special agent ruleset.
+# This call is part of the Atlassian Statuspage special agent (atlassian_statuspage).
+####################################################################################################
 
 from pydantic import BaseModel
 from typing import Iterator
@@ -30,7 +32,6 @@ from cmk.server_side_calls.v1 import (
     EnvProxy,
     HostConfig,
     NoProxy,
-    Secret,
     SpecialAgentCommand,
     SpecialAgentConfig,
     URLProxy,
@@ -44,11 +45,11 @@ class Params(BaseModel):
     timeout: float = 10.0
 
 
-def generate_special_agent_commands(
+def _generate_special_agent_commands(
     params: Params,
     _host_config: HostConfig,
 ) -> Iterator[SpecialAgentCommand]:
-    args: list[str | Secret] = [
+    args: list[str] = [
         "--url",
         params.url,
         "--timeout",
@@ -75,5 +76,5 @@ def generate_special_agent_commands(
 special_agent_atlassian_statuspage = SpecialAgentConfig(
     name="atlassian_statuspage",
     parameter_parser=Params.model_validate,
-    commands_function=generate_special_agent_commands,
+    commands_function=_generate_special_agent_commands,
 )

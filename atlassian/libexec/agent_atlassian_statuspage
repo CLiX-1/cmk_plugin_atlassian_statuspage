@@ -17,10 +17,12 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-
 ####################################################################################################
-# This Checkmk plugin (Special Agent) retrieves information from an Atlassian statuspage.
-
+# CHECKMK SPECIAL AGENT: Atlassian Statuspage
+#
+# This script retrieves information about an Atlassian Statuspage.
+# This file is part of the Atlassian Statuspage special agent (atlassian_statuspage).
+####################################################################################################
 
 import sys
 import argparse
@@ -35,7 +37,7 @@ from cmk.utils.http_proxy_config import deserialize_http_proxy_config, HTTPProxy
 
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Checkmk Special Agent for Atlassian Statuspage",
+        description="Checkmk special agent for Atlassian Statuspage",
     )
     parser.add_argument(
         "--url",
@@ -62,7 +64,7 @@ def parse_arguments() -> argparse.Namespace:
         required=False,
         type=float,
         default=10.0,
-        help="Connection timeout in seconds (default: %(default)s)",
+        help="API request timeout in seconds (default: %(default)s)",
     )
     return parser.parse_args()
 

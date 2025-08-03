@@ -17,10 +17,13 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-
 ####################################################################################################
-# Checkmk ruleset for configuration of the Atlassian Statuspage special agent.
-
+# CHECKMK RULESET: Atlassian Statuspage (special agent)
+#
+# This file provides the parameter definitions for integrating Atlassian Statuspage monitoring into
+# Checkmk.
+# Atlassian Statuspage is a Checkmk special agent (atlassian_statuspage).
+####################################################################################################
 
 from cmk.rulesets.v1 import Help, Message, Title
 from cmk.rulesets.v1.form_specs import (
@@ -44,9 +47,10 @@ def _parameter_form_special_agent_atlassian_statuspage() -> Dictionary:
     return Dictionary(
         title=Title("Atlassian Statuspage"),
         help_text=Help(
-            "This special agent requests data from an Atlassian statuspages. To monitor a "
-            "statuspage, add this rule to a single host.<br>You may also want to adjust the query "
-            "interval with the rule <b>Normal check interval for service checks</b>."
+            "This special agent retrieves data from an Atlassian statuspages.<br>To monitor these "
+            "resources, apply this rule to a <b>single host</b>.<br><b>Tip:</b> You can adjust the "
+            "query interval using the rule <b>Normal check interval for service checks</b> to "
+            "limit the number of API requests."
         ),
         elements={
             "url": DictElement(
@@ -76,7 +80,7 @@ def _parameter_form_special_agent_atlassian_statuspage() -> Dictionary:
             ),
             "filter": DictElement(
                 parameter_form=CascadingSingleChoice(
-                    title=Title("Filter Components"),
+                    title=Title("Filter components"),
                     help_text=Help(
                         "Filter which components to monitor by name. You can either:<br><br><ul>"
                         "<li><b>Include</b>: Only monitor the specified components<br></li>"
@@ -136,29 +140,31 @@ def _parameter_form_special_agent_atlassian_statuspage() -> Dictionary:
             ),
             "proxy": DictElement(
                 parameter_form=Proxy(
-                    title=Title("HTTP Proxy"),
+                    title=Title("HTTP proxy"),
                     help_text=Help(
-                        "Configure HTTP proxy settings for the connection to the statuspage.<br>"
+                        "Configure HTTP proxy settings for the API connections.<br><br>"
                         "If not configured, the system environment proxy settings will be used."
                     ),
                 ),
             ),
             "timeout": DictElement(
                 parameter_form=TimeSpan(
-                    title=Title("Connection Timeout"),
+                    title=Title("API request timeout"),
                     help_text=Help(
-                        "Maximum time in seconds to wait for the statuspage to respond.<br>"
-                        "If you do not add a timeout, a default of 10 seconds will be used."
+                        "Specify a custom timeout (in seconds) for the API request.<br>"
+                        "<br>If not specified, the default timeout is <b>10 seconds</b>."
                     ),
                     displayed_magnitudes=[TimeMagnitude.SECOND],
                     custom_validate=[
                         NumberInRange(
                             min_value=3,
                             max_value=600,
-                            error_msg=Message("The timeout must be between 3s and 600s."),
+                            error_msg=Message(
+                                "The <b>API request timeout</b> must be between 3s and 600s."
+                            ),
                         ),
                     ],
-                    prefill=DefaultValue(value=10.0),
+                    prefill=DefaultValue(10.0),
                 ),
             ),
         },

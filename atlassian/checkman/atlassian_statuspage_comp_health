@@ -4,29 +4,40 @@ catalog: cloud
 license: GPLv2
 distribution: Christopher Pommer
 description:
- This check monitors the health status of individual components from an Atlassian
- Statuspage. It processes data collected by the {Atlassian Statuspage} special agent.
+ This check monitors the health status of individual components from public
+ Atlassian Statuspage instances. Atlassian Statuspage is a hosted status page
+ service used by companies to communicate service availability and incidents
+ to their users via public web interfaces.
 
- The check evaluates each component's status and maps it to monitoring states
- based on configurable thresholds:
+ The check processes data collected by the {Atlassian Statuspage} special agent,
+ which queries the statuspage's public API. No agent installation is required
+ on the target system as the data is retrieved via HTTP API calls.
 
- {operational}: Component is fully functional (default: {OK})
+ Each component's operational status is evaluated and mapped to Checkmk monitoring
+ states based on configurable parameters:
 
- {degraded_performance}: Component has performance issues (default: {WARN})
+ - {operational}: Component is fully functional (default: {OK})
 
- {partial_outage}: Component is partially unavailable (default: {CRIT})
+ - {degraded_performance}: Component experiences performance issues (default: {WARN})
 
- {major_outage}: Component is completely unavailable (default: {CRIT})
+ - {partial_outage}: Component is partially unavailable (default: {CRIT})
 
- If a component reports an unknown or undefined status, the service state
- will be {UNKNOWN}.
+ - {major_outage}: Component is completely unavailable (default: {CRIT})
 
- You must configure the {Atlassian Statuspage} special agent to collect
- the component data from your statuspage.
+ Unknown or undefined status values result in {UNKNOWN} state.
+
+ The service displays the component's current status in the summary and provides
+ additional details including the statuspage URL and component description.
+
+ Prerequisites: Configure the {Atlassian Statuspage} special agent with the
+ target statuspage URL to enable data collection.
 
 item:
- The name of the Atlassian statuspage component as reported by the statuspage API.
+ The name of the statuspage component as reported by the Atlassian Statuspage API.
+ Component names are typically descriptive service identifiers like "API Gateway",
+ "User Authentication", or "File Storage".
 
 discovery:
- One service is created for each component found on the monitored Atlassian
- statuspage. The service name follows the pattern "Health {component_name}".
+ One service is created automatically for each component found on the configured
+ Atlassian statuspage. Services are named "Health {component_name}" where
+ {component_name} is the exact component name from the statuspage.
